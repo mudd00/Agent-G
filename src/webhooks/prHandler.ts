@@ -1,5 +1,6 @@
 import { createOctokitForInstallation } from '../github/client';
 import { AgentContext } from '../core/AgentBase';
+import { PRReviewerAgent } from '../agents/PRReviewerAgent';
 import { logger } from '../config';
 
 // PR Webhook Payload 타입 (간소화)
@@ -91,20 +92,33 @@ async function handlePROpened(
   logger.info(`[PRHandler] New PR opened: #${context.eventPayload.prNumber}`);
   logger.info(`[PRHandler] Title: ${context.eventPayload.title}`);
 
-  // Phase 3에서 PRReviewerAgent 구현 후 활성화
-  // const agent = new PRReviewerAgent();
-  // const result = await agent.run(context, octokit);
-
-  // 임시: 간단한 메시지 (Phase 1 테스트용)
   try {
+    const agent = new PRReviewerAgent();
+    const result = await agent.run(context, octokit);
+
+    if (result.success) {
+      logger.info('[PRHandler] Agent completed successfully', {
+        actions: result.actions.length,
+        inputTokens: result.totalInputTokens,
+        outputTokens: result.totalOutputTokens,
+      });
+    } else {
+      logger.error('[PRHandler] Agent failed:', result.error);
+      // 에러 발생 시 사과 댓글
+      await octokit.issues.createComment({
+        owner: context.owner,
+        repo: context.repo,
+        issue_number: context.eventPayload.prNumber as number,
+        body: `죄송합니다. PR을 분석하는 중 오류가 발생했습니다.\n\n담당자가 직접 확인하겠습니다.\n\nError: ${result.error}`,
+      });
+    }
+  } catch (error) {
+    logger.error('[PRHandler] Agent error:', error);
     await octokit.issues.createComment({
       owner: context.owner,
       repo: context.repo,
       issue_number: context.eventPayload.prNumber as number,
-      body: `👋 Thanks for the PR, @${context.triggeredBy}!\n\n🤖 **Agent-G** will review this code and provide feedback shortly.\n\n_This is a placeholder message from Phase 1._`,
+      body: `죄송합니다. PR 리뷰 중 오류가 발생했습니다. 담당자가 직접 확인하겠습니다.`,
     });
-    logger.info('[PRHandler] Placeholder comment created');
-  } catch (error) {
-    logger.error('[PRHandler] Failed to create comment:', error);
   }
 }

@@ -18,12 +18,18 @@ import {
   assignUser,
   AssignUserInput,
 } from './github/assignUser';
+import {
+  getPRDiffTool,
+  getPRDiff,
+  GetPRDiffInput,
+} from './github/getPRDiff';
 
 // 모든 Tool 정의 내보내기
 export const allTools: ToolDefinition[] = [
   addLabelTool,
   createCommentTool,
   assignUserTool,
+  getPRDiffTool,
 ];
 
 // Tool 이름으로 Tool 정의 찾기
@@ -35,7 +41,8 @@ export function getToolDefinition(name: string): ToolDefinition | undefined {
 export type ToolInput =
   | { name: 'add_label'; input: AddLabelInput }
   | { name: 'create_comment'; input: CreateCommentInput }
-  | { name: 'assign_user'; input: AssignUserInput };
+  | { name: 'assign_user'; input: AssignUserInput }
+  | { name: 'get_pr_diff'; input: GetPRDiffInput };
 
 // Tool 실행 함수
 export async function executeTool(
@@ -61,6 +68,9 @@ export async function executeTool(
       case 'assign_user':
         result = await assignUser(octokit, input as AssignUserInput);
         break;
+      case 'get_pr_diff':
+        result = await getPRDiff(octokit, input as unknown as GetPRDiffInput);
+        break;
       default:
         throw new Error(`Unknown tool: ${toolName}`);
     }
@@ -77,5 +87,5 @@ export async function executeTool(
 }
 
 // 재내보내기
-export { addLabelTool, createCommentTool, assignUserTool };
-export type { AddLabelInput, CreateCommentInput, AssignUserInput };
+export { addLabelTool, createCommentTool, assignUserTool, getPRDiffTool };
+export type { AddLabelInput, CreateCommentInput, AssignUserInput, GetPRDiffInput };

@@ -37,16 +37,36 @@ GitHub 저장소를 자동으로 관리하는 Agent AI 시스템.
 - [x] IssueOrganizerAgent 클래스 (src/agents/IssueOrganizerAgent.ts)
 - [x] issueHandler에서 Agent 호출 연결
 
+### Phase 3: PR Reviewer Agent ✅ 완료
+
+- [x] PR 리뷰 프롬프트 (src/prompts/prReview.ts)
+- [x] PRReviewerAgent 클래스 (src/agents/PRReviewerAgent.ts)
+- [x] prHandler에서 Agent 호출 연결
+- [x] PR diff 가져오기 도구 (src/tools/github/getPRDiff.ts)
+- [x] 실제 코드 변경사항 분석 기능
+
 ---
 
 ## 현재 상태
 
-**코드 작성 완료, 테스트 설정 대기 중**
+**Phase 3 완료, Phase 4 진행 예정**
 
 ```
 npm install ✅ 완료
 npm run typecheck ✅ 통과
+서버 실행 ✅ 정상
+Webhook 연결 ✅ 성공
+Issue 자동 분류 ✅ 테스트 완료
+한글 댓글 ✅ 적용됨
+PR diff 분석 ✅ 실제 코드 리뷰 가능
 ```
+
+---
+
+## 테스트 환경
+
+- **테스트 저장소**: https://github.com/mudd00/Agent-G (프로젝트 저장소 겸용)
+- **GitHub App 설치 대상**: mudd00/Agent-G
 
 ---
 

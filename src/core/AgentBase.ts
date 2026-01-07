@@ -99,12 +99,9 @@ export abstract class AgentBase {
         logger.info(`[${this.config.name}] Iteration ${iterations}`);
 
         // LLM에게 생각 요청
-        const response = await this.llm.thinkWithTools(
+        const response = await this.llm.continueWithToolResults(
           systemPrompt,
-          messages.map((m) => ({
-            role: m.role as 'user' | 'assistant',
-            content: typeof m.content === 'string' ? m.content : '',
-          })),
+          messages,
           this.config.tools,
           { temperature: 0.3 }
         );
