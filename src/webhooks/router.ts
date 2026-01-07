@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { config, logger } from '../config';
 import { handleIssueEvent } from './issueHandler';
 import { handlePREvent } from './prHandler';
+import { handlePushEvent } from './pushHandler';
 
 export const webhookRouter = Router();
 
@@ -90,8 +91,7 @@ async function routeEvent(
       break;
 
     case 'push':
-      // Phase 4에서 구현
-      logger.info('Push event received');
+      await handlePushEvent(payload);
       break;
 
     case 'ping':

@@ -23,6 +23,16 @@ import {
   getPRDiff,
   GetPRDiffInput,
 } from './github/getPRDiff';
+import {
+  getRepoContentsTool,
+  getRepoContents,
+  GetRepoContentsInput,
+} from './github/getRepoContents';
+import {
+  createOrUpdateFileTool,
+  createOrUpdateFile,
+  CreateOrUpdateFileInput,
+} from './github/createOrUpdateFile';
 
 // 모든 Tool 정의 내보내기
 export const allTools: ToolDefinition[] = [
@@ -30,6 +40,8 @@ export const allTools: ToolDefinition[] = [
   createCommentTool,
   assignUserTool,
   getPRDiffTool,
+  getRepoContentsTool,
+  createOrUpdateFileTool,
 ];
 
 // Tool 이름으로 Tool 정의 찾기
@@ -42,7 +54,9 @@ export type ToolInput =
   | { name: 'add_label'; input: AddLabelInput }
   | { name: 'create_comment'; input: CreateCommentInput }
   | { name: 'assign_user'; input: AssignUserInput }
-  | { name: 'get_pr_diff'; input: GetPRDiffInput };
+  | { name: 'get_pr_diff'; input: GetPRDiffInput }
+  | { name: 'get_repo_contents'; input: GetRepoContentsInput }
+  | { name: 'create_or_update_file'; input: CreateOrUpdateFileInput };
 
 // Tool 실행 함수
 export async function executeTool(
@@ -71,6 +85,12 @@ export async function executeTool(
       case 'get_pr_diff':
         result = await getPRDiff(octokit, input as unknown as GetPRDiffInput);
         break;
+      case 'get_repo_contents':
+        result = await getRepoContents(octokit, input as unknown as GetRepoContentsInput);
+        break;
+      case 'create_or_update_file':
+        result = await createOrUpdateFile(octokit, input as unknown as CreateOrUpdateFileInput);
+        break;
       default:
         throw new Error(`Unknown tool: ${toolName}`);
     }
@@ -87,5 +107,5 @@ export async function executeTool(
 }
 
 // 재내보내기
-export { addLabelTool, createCommentTool, assignUserTool, getPRDiffTool };
-export type { AddLabelInput, CreateCommentInput, AssignUserInput, GetPRDiffInput };
+export { addLabelTool, createCommentTool, assignUserTool, getPRDiffTool, getRepoContentsTool, createOrUpdateFileTool };
+export type { AddLabelInput, CreateCommentInput, AssignUserInput, GetPRDiffInput, GetRepoContentsInput, CreateOrUpdateFileInput };
