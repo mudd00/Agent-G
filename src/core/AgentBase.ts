@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { LLMBrain, ToolDefinition, Message } from './LLMBrain';
 import { ToolExecutor, ToolExecutionResult } from './ToolExecutor';
 import { logger } from '../config';
+import { saveAgentLog } from '../services/supabase';
 
 // Agent 컨텍스트 (Webhook에서 전달받는 정보)
 export interface AgentContext {
@@ -174,6 +175,9 @@ export abstract class AgentBase {
         outputTokens: totalOutputTokens,
       });
 
+      // Supabase에 로그 저장
+      await this.saveLog(context, allActions, duration, totalInputTokens, totalOutputTokens, 'success');
+
       return {
         success: true,
         actions: allActions,
@@ -186,6 +190,11 @@ export abstract class AgentBase {
         error instanceof Error ? error.message : 'Unknown error';
       logger.error(`[${this.config.name}] Agent error:`, errorMessage);
 
+      const duration = Date.now() - startTime;
+
+      // Supabase에 에러 로그 저장
+      await this.saveLog(context, allActions, duration, totalInputTokens, totalOutputTokens, 'error');
+
       return {
         success: false,
         actions: allActions,
@@ -195,5 +204,48 @@ export abstract class AgentBase {
         error: errorMessage,
       };
     }
+  }
+
+  /**
+   * Supabase에 Agent 실행 로그 저장
+   */
+  private async saveLog(
+    context: AgentContext,
+    actions: AgentResult['actions'],
+    duration: number,
+    inputTokens: number,
+    outputTokens: number,
+    status: 'success' | 'error'
+  ): Promise<void> {
+    // 타겟 정보 추출
+    const payload = context.eventPayload;
+    const issue = payload.issue as { number?: number; title?: string } | undefined;
+    const pr = payload.pull_request as { number?: number; title?: string } | undefined;
+    const targetNumber = issue?.number || pr?.number;
+    const targetTitle = issue?.title || pr?.title;
+
+    // 수행한 액션 목록
+    const actionsTaken = actions.map((a) => {
+      if (a.tool === 'add_label') {
+        const labels = (a.input as { labels?: string[] }).labels || [];
+        return `add_label:${labels.join(',')}`;
+      }
+      return a.tool;
+    });
+
+    await saveAgentLog({
+      repo_owner: context.owner,
+      repo_name: context.repo,
+      event_type: context.eventType,
+      event_action: context.eventAction,
+      target_number: targetNumber,
+      target_title: targetTitle,
+      agent_name: this.config.name,
+      actions_taken: actionsTaken,
+      duration_ms: duration,
+      input_tokens: inputTokens,
+      output_tokens: outputTokens,
+      status,
+    });
   }
 }

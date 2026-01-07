@@ -45,11 +45,42 @@ GitHub 저장소를 자동으로 관리하는 Agent AI 시스템.
 - [x] PR diff 가져오기 도구 (src/tools/github/getPRDiff.ts)
 - [x] 실제 코드 변경사항 분석 기능
 
+### Phase 4: README Generator Agent ✅ 완료
+
+- [x] Push 이벤트 핸들러 (src/webhooks/pushHandler.ts)
+- [x] 저장소 내용 조회 도구 (src/tools/github/getRepoContents.ts)
+- [x] 파일 생성/수정 도구 (src/tools/github/createOrUpdateFile.ts)
+- [x] README 생성 프롬프트 (src/prompts/readmeGeneration.ts)
+- [x] ReadmeGeneratorAgent 클래스 (src/agents/ReadmeGeneratorAgent.ts)
+- [x] router.ts에 pushHandler 연결
+- [x] GitHub App에 Contents 권한 및 Pushes 이벤트 구독 추가
+
+### Phase 5: 고도화 ✅ 완료
+
+#### 5-1. Supabase 연동 ✅ 완료
+- [x] Supabase 프로젝트 생성 및 agent_logs 테이블 생성
+- [x] .env에 SUPABASE_URL, SUPABASE_ANON_KEY 추가
+- [x] config/index.ts에 Supabase 환경 변수 추가
+- [x] Supabase 클라이언트 설정 (src/services/supabase.ts)
+- [x] Agent 로깅 서비스 구현 (saveAgentLog, getRecentLogs, getStats)
+- [x] AgentBase에서 실행 완료 시 자동 로그 저장
+
+#### 5-2. 대시보드 UI ✅ 완료
+- [x] client/ 폴더에 React + Vite + Tailwind 설정
+- [x] Express에 API 엔드포인트 추가 (/api/logs, /api/stats)
+- [x] 대시보드 페이지 구현 (통계 카드, 최근 활동 목록, 프로젝트 소개)
+- [x] Express에서 React 빌드 결과물 serve
+
+#### 5-3. 배포 (예정)
+- [ ] Railway 배포 설정
+- [ ] 환경 변수 설정
+- [ ] GitHub App Webhook URL 업데이트
+
 ---
 
 ## 현재 상태
 
-**Phase 3 완료, Phase 4 진행 예정**
+**Phase 5 완료 (배포만 남음)**
 
 ```
 npm install ✅ 완료
@@ -59,6 +90,10 @@ Webhook 연결 ✅ 성공
 Issue 자동 분류 ✅ 테스트 완료
 한글 댓글 ✅ 적용됨
 PR diff 분석 ✅ 실제 코드 리뷰 가능
+Push 시 README 자동 생성 ✅ 테스트 완료
+Supabase 로깅 연동 ✅ 완료
+대시보드 UI ✅ 완료
+API 엔드포인트 ✅ /api/stats, /api/logs 작동
 ```
 
 ---
@@ -66,77 +101,30 @@ PR diff 분석 ✅ 실제 코드 리뷰 가능
 ## 테스트 환경
 
 - **테스트 저장소**: https://github.com/mudd00/Agent-G (프로젝트 저장소 겸용)
-- **GitHub App 설치 대상**: mudd00/Agent-G
+- **GitHub App**: PofolAgent (mudd00/Agent-G에 설치됨)
+- **GitHub App 설정 페이지**: https://github.com/settings/apps/pofolagent
+- **필요한 권한**:
+  - Issues: Read and write
+  - Pull requests: Read and write
+  - Contents: Read and write
+- **구독 중인 이벤트**: Issues, Pull request, Pushes
 
 ---
 
-## 다음 단계: 테스트 설정
+## 다음 작업
 
-### 1. 사용자가 해야 할 일
+> **주의**: 사용자가 직접 대시보드를 테스트하고 개선한 뒤 배포로 넘어갈 예정.
+> Claude AI는 사용자 요청 전까지 작업을 시작하지 말 것.
 
-#### A. Anthropic API 키 발급
-- https://console.anthropic.com/ 에서 API 키 생성
+### 1. 대시보드 테스트 및 개선 (사용자가 직접 진행)
+- 로컬에서 대시보드 확인 (http://localhost:3000/)
+- 필요시 UI/기능 개선 요청
 
-#### B. GitHub App 생성
-1. https://github.com/settings/apps → New GitHub App
-2. 설정:
-   - App name: Agent-G
-   - Webhook URL: (ngrok URL - 나중에 설정)
-   - Webhook secret: 임의 문자열
-3. 권한:
-   - Issues: Read and write
-   - Metadata: Read-only
-   - Pull requests: Read and write
-4. 이벤트 구독:
-   - Issues ✅
-   - Pull request ✅
-5. 생성 후:
-   - App ID 복사
-   - Private key 다운로드 (.pem 파일)
-
-#### C. 테스트 저장소에 App 설치
-- GitHub App 설정 → Install App → 테스트 저장소 선택
-
-### 2. Claude가 도와줄 일
-
-#### A. .env 파일 설정
-```bash
-cp .env.example .env
-# 사용자가 값 입력
-```
-
-#### B. 서버 실행 테스트
-```bash
-npm run dev
-```
-
-#### C. ngrok 설정
-```bash
-ngrok http 3000
-# ngrok URL을 GitHub App Webhook URL에 입력
-```
-
-#### D. 테스트 Issue 생성
-- 테스트 저장소에 Issue 생성
-- Agent가 자동으로 라벨 + 댓글 추가하는지 확인
-
----
-
-## 이후 Phase (아직 안 함)
-
-### Phase 3: PR Reviewer Agent
-- PRReviewerAgent 클래스 구현
-- 코드 리뷰 프롬프트 작성
-- prHandler에서 Agent 호출 연결
-
-### Phase 4: README Generator Agent
-- ReadmeGeneratorAgent 클래스 구현
-- Push 이벤트 핸들러 구현
-
-### Phase 5: 고도화
-- Supabase 연동 (작업 이력 저장)
-- 대시보드 UI (선택)
-- 여러 저장소 지원
+### 2. Railway 배포
+1. Railway 프로젝트 생성
+2. 환경 변수 설정 (GitHub App, Claude API, Supabase)
+3. 배포 후 GitHub App Webhook URL 업데이트
+4. 대시보드 URL 확인 및 테스트
 
 ---
 
@@ -148,6 +136,8 @@ ngrok http 3000
 | Runtime | Node.js 20+ Express |
 | AI | Claude API (Sonnet) |
 | GitHub | GitHub App + Octokit |
+| DB | Supabase (PostgreSQL) |
+| Frontend | React + Vite + Tailwind |
 | 배포 | Railway (예정) |
 | 개발 | ngrok |
 
@@ -269,28 +259,51 @@ LLM이 전체 내용 분석 → "이건 기능 요청인데 버그로 착각한 
 Agent-G/
 ├── src/
 │   ├── agents/
-│   │   └── IssueOrganizerAgent.ts
+│   │   ├── IssueOrganizerAgent.ts   # Issue 자동 분류
+│   │   ├── PRReviewerAgent.ts       # PR 코드 리뷰
+│   │   └── ReadmeGeneratorAgent.ts  # README 자동 생성
 │   ├── config/
-│   │   └── index.ts
+│   │   └── index.ts                 # 환경 변수 (GitHub, Claude, Supabase)
 │   ├── core/
-│   │   ├── AgentBase.ts
-│   │   ├── LLMBrain.ts
-│   │   └── ToolExecutor.ts
+│   │   ├── AgentBase.ts             # Agent 기본 클래스 + 로그 저장
+│   │   ├── LLMBrain.ts              # Claude API 래퍼
+│   │   └── ToolExecutor.ts          # Tool 실행기
 │   ├── github/
-│   │   └── client.ts
+│   │   └── client.ts                # GitHub App 인증
 │   ├── prompts/
-│   │   └── issueAnalysis.ts
+│   │   ├── issueAnalysis.ts         # Issue 분석 프롬프트
+│   │   ├── prReview.ts              # PR 리뷰 프롬프트
+│   │   └── readmeGeneration.ts      # README 생성 프롬프트
+│   ├── services/
+│   │   └── supabase.ts              # Supabase 클라이언트 + 로깅 함수
 │   ├── tools/
 │   │   ├── github/
 │   │   │   ├── addLabel.ts
+│   │   │   ├── assignUser.ts
 │   │   │   ├── createComment.ts
-│   │   │   └── assignUser.ts
+│   │   │   ├── createOrUpdateFile.ts  # 파일 생성/수정
+│   │   │   ├── getPRDiff.ts           # PR diff 조회
+│   │   │   └── getRepoContents.ts     # 저장소 내용 조회
 │   │   └── index.ts
 │   ├── webhooks/
 │   │   ├── issueHandler.ts
 │   │   ├── prHandler.ts
+│   │   ├── pushHandler.ts           # Push 이벤트 핸들러
 │   │   └── router.ts
 │   └── server.ts
+├── client/                          # React 대시보드
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── StatsCard.tsx        # 통계 카드 컴포넌트
+│   │   │   ├── RecentActivity.tsx   # 최근 활동 목록
+│   │   │   └── ProjectInfo.tsx      # 프로젝트 소개
+│   │   ├── App.tsx                  # 메인 대시보드
+│   │   ├── main.tsx                 # 엔트리포인트
+│   │   └── index.css                # Tailwind CSS
+│   ├── dist/                        # 빌드 결과물 (Express에서 serve)
+│   ├── package.json
+│   ├── tailwind.config.js
+│   └── vite.config.ts
 ├── .env.example
 ├── .gitignore
 ├── package.json
@@ -305,7 +318,135 @@ Agent-G/
 
 ```
 1. 이 파일(PROGRESS.md) 읽기
-2. "다음 단계" 섹션부터 진행
-3. 사용자가 GitHub App 생성 완료했는지 확인
-4. .env 설정 → 서버 실행 → ngrok → 테스트
+2. "다음 작업" 섹션 확인
+3. Railway 배포
+   - Railway 프로젝트 생성
+   - 환경 변수 설정
+   - 배포 후 Webhook URL 업데이트
+```
+
+### 로컬 개발 실행
+```bash
+# 서버 실행
+npm run dev
+
+# 대시보드 개발 (client 폴더에서)
+cd client && npm run dev
+
+# 대시보드 빌드 (배포 전)
+cd client && npm run build
+```
+
+### Supabase 정보
+- **Project URL**: https://fddkglorelgzyzeqdfvh.supabase.co
+- **테이블**: agent_logs
+
+#### agent_logs 테이블 스키마
+```sql
+CREATE TABLE agent_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+
+  -- 저장소 정보
+  repo_owner TEXT NOT NULL,
+  repo_name TEXT NOT NULL,
+
+  -- 이벤트 정보
+  event_type TEXT NOT NULL,        -- 'issue', 'pull_request', 'push'
+  event_action TEXT,               -- 'opened', 'closed', etc.
+  target_number INTEGER,           -- Issue/PR 번호
+  target_title TEXT,
+
+  -- Agent 정보
+  agent_name TEXT NOT NULL,        -- 'IssueOrganizerAgent', etc.
+  actions_taken TEXT[],            -- ['add_label:bug', 'create_comment']
+
+  -- 성능 정보
+  duration_ms INTEGER,
+  input_tokens INTEGER,
+  output_tokens INTEGER,
+
+  -- 상태
+  status TEXT DEFAULT 'success'    -- 'success', 'error'
+);
+```
+
+### 대시보드 UI (완료)
+
+대시보드는 http://localhost:3000/ 에서 접근 가능합니다.
+
+#### 생성된 파일들
+
+**client/ 폴더 구조:**
+```
+client/
+├── src/
+│   ├── components/
+│   │   ├── StatsCard.tsx      # 통계 카드 (오늘/전체/성공률)
+│   │   ├── RecentActivity.tsx # 최근 활동 목록
+│   │   └── ProjectInfo.tsx    # 프로젝트 소개 + Agent 설명
+│   ├── App.tsx                # 메인 대시보드 (API fetch, 레이아웃)
+│   ├── main.tsx               # React 엔트리포인트
+│   └── index.css              # Tailwind CSS 설정
+├── index.html                 # 타이틀: "Agent-G Dashboard"
+├── tailwind.config.js
+├── postcss.config.js          # @tailwindcss/postcss 사용
+├── vite.config.ts
+└── package.json
+```
+
+**수정된 서버 파일:**
+- `src/server.ts` - API 엔드포인트 추가 + React 빌드 serve
+
+#### 구현 상세
+
+**1. StatsCard.tsx**
+- Props: icon, value, label, color (blue/green/purple)
+- 그라데이션 배경의 아이콘 + 숫자 표시
+
+**2. RecentActivity.tsx**
+- Supabase에서 가져온 로그 목록 표시
+- Agent별 이모지 (🏷️ Issue, 👀 PR, 📝 README)
+- 시간 포맷 (방금 전, N분 전, N시간 전)
+- 성공/실패 상태 배지
+- 로딩 스켈레톤 UI
+
+**3. ProjectInfo.tsx**
+- Agent 3종 소개 (IssueOrganizer, PRReviewer, ReadmeGenerator)
+- 기술 스택 태그 표시
+- GitHub 링크 (mudd00/Agent-G)
+
+**4. App.tsx**
+- 30초마다 /api/stats, /api/logs 자동 갱신
+- 반응형 레이아웃 (모바일/데스크톱)
+- 다크 테마 (slate-900 배경)
+
+**5. server.ts 변경사항**
+```typescript
+// 추가된 import
+import { getStats, getRecentLogs } from './services/supabase';
+
+// 추가된 API 엔드포인트
+GET /api/stats  → getStats() 호출
+GET /api/logs   → getRecentLogs(limit) 호출
+
+// React 빌드 serve
+express.static(path.join(__dirname, '../client/dist'))
+```
+
+#### 개선 가능한 부분
+- [ ] 로그 필터링 (Agent별, 날짜별)
+- [ ] 페이지네이션
+- [ ] 실시간 WebSocket 업데이트
+- [ ] 차트/그래프 추가
+- [ ] 다크/라이트 테마 토글
+
+**API 엔드포인트:**
+- GET `/api/stats` - 통계 조회
+- GET `/api/logs?limit=N` - 최근 로그 조회
+
+### 테스트 방법
+```bash
+npm run dev          # 서버 실행
+ngrok http 3000      # 터널링 (Webhook 테스트용)
 ```

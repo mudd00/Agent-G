@@ -18,6 +18,10 @@ const envSchema = z.object({
 
   // Optional
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+  // Supabase (optional for logging)
+  SUPABASE_URL: z.string().optional(),
+  SUPABASE_ANON_KEY: z.string().optional(),
 });
 
 const parseEnv = () => {
@@ -43,6 +47,8 @@ const parseEnv = () => {
       GITHUB_WEBHOOK_SECRET: process.env.GITHUB_WEBHOOK_SECRET || '',
       ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
       LOG_LEVEL: 'debug' as const,
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
     };
   }
 
