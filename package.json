@@ -15,7 +15,7 @@
     "ai",
     "automation",
     "claude"
-  ],
+  ], // 주석 추가 에이전트 테스트 중//
   "author": "Jaewon",
   "license": "MIT",
   "dependencies": {
