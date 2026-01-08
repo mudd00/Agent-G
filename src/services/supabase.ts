@@ -133,7 +133,7 @@ export async function getStats(): Promise<{
       .select('agent_name');
 
     const byAgent: Record<string, number> = {};
-    agentData?.forEach((row) => {
+    agentData?.forEach((row: { agent_name: string }) => {
       byAgent[row.agent_name] = (byAgent[row.agent_name] || 0) + 1;
     });
 
