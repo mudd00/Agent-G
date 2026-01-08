@@ -1,9 +1,57 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source "../index.html";
+@source "./App.tsx";
+@source "./components/*.tsx";
 
 body {
   margin: 0;
   min-height: 100vh;
   background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* Agent working animations */
+@keyframes scroll-code {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes fade-pulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.08; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+}
+
+.animate-scroll-code {
+  animation: scroll-code 20s linear infinite;
+}
+
+.animate-scroll-code-slow {
+  animation: scroll-code 30s linear infinite;
+}
+
+.animate-fade-pulse {
+  animation: fade-pulse 4s ease-in-out infinite;
+}
+
+.animate-rotate-slow {
+  animation: rotate-slow 30s linear infinite;
+}
+
+.animate-orbit {
+  animation: orbit 8s linear infinite;
+}
+
+.animate-orbit-reverse {
+  animation: orbit 12s linear infinite reverse;
 }

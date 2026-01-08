@@ -66,12 +66,21 @@ GitHub 저장소를 자동으로 관리하는 Agent AI 시스템.
 - [x] AgentBase에서 실행 완료 시 자동 로그 저장
 
 #### 5-2. 대시보드 UI ✅ 완료
-- [x] client/ 폴더에 React + Vite + Tailwind 설정
+- [x] client/ 폴더에 React + Vite + Tailwind v4 설정
 - [x] Express에 API 엔드포인트 추가 (/api/logs, /api/stats)
 - [x] 대시보드 페이지 구현 (통계 카드, 최근 활동 목록, 프로젝트 소개)
 - [x] Express에서 React 빌드 결과물 serve
 
-#### 5-3. 배포 (예정)
+#### 5-3. 대시보드 UI 개선 ✅ 완료
+- [x] Tailwind CSS v4 설정 수정 (@import, @source 방식)
+- [x] Agent별 클릭 가능한 모달 추가 (트리거, 설명, 기능, 작동 방식)
+- [x] 애니메이션 배경 추가 (스크롤되는 코드 효과)
+- [x] About 모달 추가 (프로젝트 소개, 기술 스택, 테스트 방법, GitHub 링크)
+- [x] 서버 상태 표시기 추가 (online/connecting/offline)
+- [x] 레이아웃 재구성 (Stats Cards 메인 영역으로 이동)
+- [x] How it Works 섹션 (3단계 작동 방식 설명)
+
+#### 5-4. 배포 (예정)
 - [ ] Railway 배포 설정
 - [ ] 환경 변수 설정
 - [ ] GitHub App Webhook URL 업데이트
@@ -93,6 +102,7 @@ PR diff 분석 ✅ 실제 코드 리뷰 가능
 Push 시 README 자동 생성 ✅ 테스트 완료
 Supabase 로깅 연동 ✅ 완료
 대시보드 UI ✅ 완료
+대시보드 UI 개선 ✅ 완료 (모달, 애니메이션, About, 상태표시)
 API 엔드포인트 ✅ /api/stats, /api/logs 작동
 ```
 
@@ -113,12 +123,18 @@ API 엔드포인트 ✅ /api/stats, /api/logs 작동
 
 ## 다음 작업
 
-> **주의**: 사용자가 직접 대시보드를 테스트하고 개선한 뒤 배포로 넘어갈 예정.
-> Claude AI는 사용자 요청 전까지 작업을 시작하지 말 것.
+### 1. 배포 전 체크리스트
+```bash
+# 클라이언트 빌드 (UI 변경 후 필수)
+cd client && npm run build
 
-### 1. 대시보드 테스트 및 개선 (사용자가 직접 진행)
-- 로컬에서 대시보드 확인 (http://localhost:3000/)
-- 필요시 UI/기능 개선 요청
+# 타입체크
+npm run typecheck
+
+# 로컬 테스트
+npm run dev
+# http://localhost:3000 접속하여 대시보드 확인
+```
 
 ### 2. Railway 배포
 1. Railway 프로젝트 생성
@@ -137,7 +153,7 @@ API 엔드포인트 ✅ /api/stats, /api/logs 작동
 | AI | Claude API (Sonnet) |
 | GitHub | GitHub App + Octokit |
 | DB | Supabase (PostgreSQL) |
-| Frontend | React + Vite + Tailwind |
+| Frontend | React + Vite + Tailwind v4 |
 | 배포 | Railway (예정) |
 | 개발 | ngrok |
 
@@ -314,139 +330,46 @@ Agent-G/
 
 ---
 
-## 새 세션에서 작업 이어가기
+## 환경 설정
 
+### 필요한 환경 변수 (.env)
 ```
-1. 이 파일(PROGRESS.md) 읽기
-2. "다음 작업" 섹션 확인
-3. Railway 배포
-   - Railway 프로젝트 생성
-   - 환경 변수 설정
-   - 배포 후 Webhook URL 업데이트
-```
+# GitHub App
+GITHUB_APP_ID=
+GITHUB_PRIVATE_KEY=
+GITHUB_WEBHOOK_SECRET=
 
-### 로컬 개발 실행
-```bash
-# 서버 실행
-npm run dev
+# Claude API
+ANTHROPIC_API_KEY=
 
-# 대시보드 개발 (client 폴더에서)
-cd client && npm run dev
+# Supabase
+SUPABASE_URL=https://fddkglorelgzyzeqdfvh.supabase.co
+SUPABASE_ANON_KEY=
 
-# 대시보드 빌드 (배포 전)
-cd client && npm run build
+# 서버
+PORT=3000
 ```
 
-### Supabase 정보
-- **Project URL**: https://fddkglorelgzyzeqdfvh.supabase.co
-- **테이블**: agent_logs
-
-#### agent_logs 테이블 스키마
+### Supabase agent_logs 테이블 스키마
 ```sql
 CREATE TABLE agent_logs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
-  -- 저장소 정보
   repo_owner TEXT NOT NULL,
   repo_name TEXT NOT NULL,
-
-  -- 이벤트 정보
   event_type TEXT NOT NULL,        -- 'issue', 'pull_request', 'push'
-  event_action TEXT,               -- 'opened', 'closed', etc.
-  target_number INTEGER,           -- Issue/PR 번호
+  event_action TEXT,
+  target_number INTEGER,
   target_title TEXT,
-
-  -- Agent 정보
-  agent_name TEXT NOT NULL,        -- 'IssueOrganizerAgent', etc.
-  actions_taken TEXT[],            -- ['add_label:bug', 'create_comment']
-
-  -- 성능 정보
+  agent_name TEXT NOT NULL,
+  actions_taken TEXT[],
   duration_ms INTEGER,
   input_tokens INTEGER,
   output_tokens INTEGER,
-
-  -- 상태
-  status TEXT DEFAULT 'success'    -- 'success', 'error'
+  status TEXT DEFAULT 'success'
 );
 ```
 
-### 대시보드 UI (완료)
-
-대시보드는 http://localhost:3000/ 에서 접근 가능합니다.
-
-#### 생성된 파일들
-
-**client/ 폴더 구조:**
-```
-client/
-├── src/
-│   ├── components/
-│   │   ├── StatsCard.tsx      # 통계 카드 (오늘/전체/성공률)
-│   │   ├── RecentActivity.tsx # 최근 활동 목록
-│   │   └── ProjectInfo.tsx    # 프로젝트 소개 + Agent 설명
-│   ├── App.tsx                # 메인 대시보드 (API fetch, 레이아웃)
-│   ├── main.tsx               # React 엔트리포인트
-│   └── index.css              # Tailwind CSS 설정
-├── index.html                 # 타이틀: "Agent-G Dashboard"
-├── tailwind.config.js
-├── postcss.config.js          # @tailwindcss/postcss 사용
-├── vite.config.ts
-└── package.json
-```
-
-**수정된 서버 파일:**
-- `src/server.ts` - API 엔드포인트 추가 + React 빌드 serve
-
-#### 구현 상세
-
-**1. StatsCard.tsx**
-- Props: icon, value, label, color (blue/green/purple)
-- 그라데이션 배경의 아이콘 + 숫자 표시
-
-**2. RecentActivity.tsx**
-- Supabase에서 가져온 로그 목록 표시
-- Agent별 이모지 (🏷️ Issue, 👀 PR, 📝 README)
-- 시간 포맷 (방금 전, N분 전, N시간 전)
-- 성공/실패 상태 배지
-- 로딩 스켈레톤 UI
-
-**3. ProjectInfo.tsx**
-- Agent 3종 소개 (IssueOrganizer, PRReviewer, ReadmeGenerator)
-- 기술 스택 태그 표시
-- GitHub 링크 (mudd00/Agent-G)
-
-**4. App.tsx**
-- 30초마다 /api/stats, /api/logs 자동 갱신
-- 반응형 레이아웃 (모바일/데스크톱)
-- 다크 테마 (slate-900 배경)
-
-**5. server.ts 변경사항**
-```typescript
-// 추가된 import
-import { getStats, getRecentLogs } from './services/supabase';
-
-// 추가된 API 엔드포인트
-GET /api/stats  → getStats() 호출
-GET /api/logs   → getRecentLogs(limit) 호출
-
-// React 빌드 serve
-express.static(path.join(__dirname, '../client/dist'))
-```
-
-#### 개선 가능한 부분
-- [ ] 로그 필터링 (Agent별, 날짜별)
-- [ ] 페이지네이션
-- [ ] 실시간 WebSocket 업데이트
-- [ ] 차트/그래프 추가
-- [ ] 다크/라이트 테마 토글
-
-**API 엔드포인트:**
+### API 엔드포인트
 - GET `/api/stats` - 통계 조회
 - GET `/api/logs?limit=N` - 최근 로그 조회
-
-### 테스트 방법
-```bash
-npm run dev          # 서버 실행
-ngrok http 3000      # 터널링 (Webhook 테스트용)
-```
