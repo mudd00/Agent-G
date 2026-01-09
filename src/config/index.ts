@@ -25,7 +25,11 @@ const envSchema = z.object({
 });
 
 const parseEnv = () => {
-  const result = envSchema.safeParse(process.env);
+  // 환경 변수 trim 처리 (Railway 등에서 줄바꿈이 포함될 수 있음)
+  const trimmedEnv = Object.fromEntries(
+    Object.entries(process.env).map(([key, value]) => [key, value?.trim()])
+  );
+  const result = envSchema.safeParse(trimmedEnv);
 
   if (!result.success) {
     console.error('[Config] Environment validation failed:');
