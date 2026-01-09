@@ -80,67 +80,70 @@ GitHub 저장소를 자동으로 관리하는 Agent AI 시스템.
 - [x] 레이아웃 재구성 (Stats Cards 메인 영역으로 이동)
 - [x] How it Works 섹션 (3단계 작동 방식 설명)
 
-#### 5-4. 배포 (예정)
-- [ ] Railway 배포 설정
-- [ ] 환경 변수 설정
-- [ ] GitHub App Webhook URL 업데이트
+#### 5-4. 데모 섹션 UI 추가 ✅ 완료
+- [x] AI Agents 섹션 아래에 Demo 썸네일 UI 추가
+- [x] 클릭 시 모달로 GIF/영상 재생 기능
+- [x] 영상(mp4) 및 GIF 모두 지원
+- [ ] 데모 영상 파일 녹화 및 업로드 (미완료)
+
+#### 5-5. Railway 배포 ✅ 완료
+- [x] Railway 프로젝트 생성 및 GitHub 연결
+- [x] 빌드 스크립트 수정 (서버 + 클라이언트 동시 빌드)
+- [x] 환경 변수 처리 개선 (trim, \n 변환)
+- [x] 환경 변수 설정 완료
+- [x] GitHub App Webhook URL 업데이트
 
 ---
 
 ## 현재 상태
 
-**Phase 5 완료 (배포만 남음)**
+**✅ 핵심 기능 완료 및 배포됨**
 
-```
-npm install ✅ 완료
-npm run typecheck ✅ 통과
-서버 실행 ✅ 정상
-Webhook 연결 ✅ 성공
-Issue 자동 분류 ✅ 테스트 완료
-한글 댓글 ✅ 적용됨
-PR diff 분석 ✅ 실제 코드 리뷰 가능
-Push 시 README 자동 생성 ✅ 테스트 완료
-Supabase 로깅 연동 ✅ 완료
-대시보드 UI ✅ 완료
-대시보드 UI 개선 ✅ 완료 (모달, 애니메이션, About, 상태표시)
-API 엔드포인트 ✅ /api/stats, /api/logs 작동
-```
+- **배포 URL**: https://agent-g-production.up.railway.app
+- **API 상태**: 정상 작동 (/api/stats, /api/logs)
+- **Agent 실행 기록**: 5건 (IssueOrganizer 3건, ReadmeGenerator 2건)
+- **미완료**: 데모 영상 녹화 및 업로드
+
+**로컬 미푸시 변경사항:**
+- `PROGRESS.md` - 이 파일
+- `client/src/components/ProjectInfo.tsx` - 데모 섹션 UI 추가
 
 ---
 
-## 테스트 환경
+## 배포 및 테스트 환경
 
-- **테스트 저장소**: https://github.com/mudd00/Agent-G (프로젝트 저장소 겸용)
-- **GitHub App**: PofolAgent (mudd00/Agent-G에 설치됨)
-- **GitHub App 설정 페이지**: https://github.com/settings/apps/pofolagent
-- **필요한 권한**:
-  - Issues: Read and write
-  - Pull requests: Read and write
-  - Contents: Read and write
-- **구독 중인 이벤트**: Issues, Pull request, Pushes
+- **배포 URL**: https://agent-g-production.up.railway.app
+- **GitHub 저장소**: https://github.com/mudd00/Agent-G
+- **GitHub App**: PofolAgent
+- **GitHub App 설정**: https://github.com/settings/apps/pofolagent
+- **권한**: Issues, Pull requests, Contents (Read and write)
+- **구독 이벤트**: Issues, Pull request, Pushes
 
 ---
 
 ## 다음 작업
 
-### 1. 배포 전 체크리스트
+### 1. 로컬 변경사항 Push
 ```bash
-# 클라이언트 빌드 (UI 변경 후 필수)
-cd client && npm run build
-
-# 타입체크
-npm run typecheck
-
-# 로컬 테스트
-npm run dev
-# http://localhost:3000 접속하여 대시보드 확인
+git add .
+git commit -m "feat: 데모 섹션 UI 추가"
+git push
 ```
 
-### 2. Railway 배포
-1. Railway 프로젝트 생성
-2. 환경 변수 설정 (GitHub App, Claude API, Supabase)
-3. 배포 후 GitHub App Webhook URL 업데이트
-4. 대시보드 URL 확인 및 테스트
+### 2. README.md 업데이트 필요
+현재 README.md에 오래된 정보 있음:
+- 환경 변수: `GITHUB_TOKEN`, `OPENAI_API_KEY` → 실제는 `GITHUB_APP_ID`, `ANTHROPIC_API_KEY` 등
+- 배포 URL 추가 필요
+- Supabase 연동 정보 추가 필요
+
+### 3. 데모 영상 추가 (선택사항)
+파일 위치: `client/public/demos/`
+```
+issue-organizer.mp4   # Issue 자동 라벨링 데모
+pr-reviewer.mp4       # PR 코드 리뷰 데모
+readme-generator.mp4  # README 자동 생성 데모
+```
+포맷: mp4 또는 gif 지원
 
 ---
 
@@ -154,7 +157,7 @@ npm run dev
 | GitHub | GitHub App + Octokit |
 | DB | Supabase (PostgreSQL) |
 | Frontend | React + Vite + Tailwind v4 |
-| 배포 | Railway (예정) |
+| 배포 | Railway |
 | 개발 | ngrok |
 
 ---
@@ -308,17 +311,18 @@ Agent-G/
 │   │   └── router.ts
 │   └── server.ts
 ├── client/                          # React 대시보드
+│   ├── public/
+│   │   └── demos/                   # 데모 영상 파일 (mp4/gif)
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── StatsCard.tsx        # 통계 카드 컴포넌트
 │   │   │   ├── RecentActivity.tsx   # 최근 활동 목록
-│   │   │   └── ProjectInfo.tsx      # 프로젝트 소개
+│   │   │   └── ProjectInfo.tsx      # 프로젝트 소개 + 데모 섹션
 │   │   ├── App.tsx                  # 메인 대시보드
 │   │   ├── main.tsx                 # 엔트리포인트
 │   │   └── index.css                # Tailwind CSS
 │   ├── dist/                        # 빌드 결과물 (Express에서 serve)
 │   ├── package.json
-│   ├── tailwind.config.js
 │   └── vite.config.ts
 ├── .env.example
 ├── .gitignore
@@ -334,20 +338,22 @@ Agent-G/
 
 ### 필요한 환경 변수 (.env)
 ```
+# 서버
+PORT=3000
+NODE_ENV=development
+LOG_LEVEL=debug
+
 # GitHub App
 GITHUB_APP_ID=
-GITHUB_PRIVATE_KEY=
+GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 GITHUB_WEBHOOK_SECRET=
 
 # Claude API
 ANTHROPIC_API_KEY=
 
 # Supabase
-SUPABASE_URL=https://fddkglorelgzyzeqdfvh.supabase.co
+SUPABASE_URL=
 SUPABASE_ANON_KEY=
-
-# 서버
-PORT=3000
 ```
 
 ### Supabase agent_logs 테이블 스키마

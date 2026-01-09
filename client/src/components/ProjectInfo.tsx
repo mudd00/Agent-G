@@ -16,6 +16,46 @@ interface Agent {
   flow: string[];
 }
 
+interface Demo {
+  key: string;
+  agentName: string;
+  title: string;
+  emoji: string;
+  color: string;
+  mediaUrl: string; // GIF 또는 영상 파일 경로
+  isVideo?: boolean; // true면 video 태그 사용, false/undefined면 img 태그
+}
+
+const demos: Demo[] = [
+  {
+    key: 'issue-demo',
+    agentName: 'Issue Organizer',
+    title: 'Issue 자동 라벨링',
+    emoji: '🏷️',
+    color: 'from-blue-500 to-blue-600',
+    mediaUrl: '/demos/issue-organizer.mp4',
+    isVideo: true,
+  },
+  {
+    key: 'pr-demo',
+    agentName: 'PR Reviewer',
+    title: 'PR 코드 리뷰',
+    emoji: '👀',
+    color: 'from-purple-500 to-purple-600',
+    mediaUrl: '/demos/pr-reviewer.mp4',
+    isVideo: true,
+  },
+  {
+    key: 'readme-demo',
+    agentName: 'README Generator',
+    title: 'README 자동 생성',
+    emoji: '📝',
+    color: 'from-green-500 to-green-600',
+    mediaUrl: '/demos/readme-generator.mp4',
+    isVideo: true,
+  },
+];
+
 const agents: Agent[] = [
   {
     key: 'IssueOrganizerAgent',
@@ -84,6 +124,70 @@ const agents: Agent[] = [
   },
 ];
 
+
+function DemoModal({ demo, onClose }: { demo: Demo; onClose: () => void }) {
+  const [hasError, setHasError] = useState(false);
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-slate-900 border border-white/20 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl relative"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className={`bg-gradient-to-r ${demo.color} p-4`}>
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{demo.emoji}</span>
+            <div>
+              <h3 className="text-lg font-bold text-white">{demo.title}</h3>
+              <p className="text-white/70 text-sm">{demo.agentName} Demo</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Media Content */}
+        <div className="p-4 bg-black">
+          {hasError ? (
+            <div className="aspect-video bg-slate-800 rounded-lg flex flex-col items-center justify-center text-gray-400">
+              <span className="text-4xl mb-2">{demo.emoji}</span>
+              <p className="text-sm">데모 영상 준비 중...</p>
+              <p className="text-xs text-gray-500 mt-1">{demo.mediaUrl}</p>
+            </div>
+          ) : demo.isVideo ? (
+            <video
+              src={demo.mediaUrl}
+              className="w-full rounded-lg"
+              controls
+              autoPlay
+              loop
+              onError={() => setHasError(true)}
+            />
+          ) : (
+            <img
+              src={demo.mediaUrl}
+              alt={demo.title}
+              className="w-full rounded-lg"
+              onError={() => setHasError(true)}
+            />
+          )}
+        </div>
+
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/30 hover:bg-black/50 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function AgentModal({ agent, onClose }: { agent: Agent; onClose: () => void }) {
   return (
@@ -179,6 +283,7 @@ function AgentModal({ agent, onClose }: { agent: Agent; onClose: () => void }) {
 
 export function ProjectInfo(_props: ProjectInfoProps) {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [selectedDemo, setSelectedDemo] = useState<Demo | null>(null);
 
   return (
     <>
@@ -188,7 +293,7 @@ export function ProjectInfo(_props: ProjectInfoProps) {
           <span className="text-xs text-gray-500 bg-white/5 px-2 py-1 rounded-full">클릭하여 상세보기</span>
         </div>
 
-        <div className="space-y-3 mb-8">
+        <div className="space-y-3 mb-6">
           {agents.map(agent => (
             <div
               key={agent.key}
@@ -210,11 +315,50 @@ export function ProjectInfo(_props: ProjectInfoProps) {
             </div>
           ))}
         </div>
+
+        {/* Demo Section */}
+        <div className="pt-6 border-t border-white/10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Demo</h3>
+            <span className="text-xs text-gray-500">클릭하여 재생</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {demos.map(demo => (
+              <div
+                key={demo.key}
+                onClick={() => setSelectedDemo(demo)}
+                className={`relative aspect-video rounded-xl bg-gradient-to-br ${demo.color} cursor-pointer overflow-hidden group hover:scale-105 transition-transform shadow-lg`}
+              >
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
+
+                {/* Play Icon */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <svg className="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Label */}
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+                  <p className="text-white text-xs font-medium truncate">{demo.title}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Modal */}
+      {/* Agent Modal */}
       {selectedAgent && (
         <AgentModal agent={selectedAgent} onClose={() => setSelectedAgent(null)} />
+      )}
+
+      {/* Demo Modal */}
+      {selectedDemo && (
+        <DemoModal demo={selectedDemo} onClose={() => setSelectedDemo(null)} />
       )}
     </>
   );
