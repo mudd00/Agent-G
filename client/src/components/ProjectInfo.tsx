@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 interface ProjectInfoProps {
-  byAgent: Record<string, number>;
+  byAgent?: Record<string, number>;
 }
 
 interface Agent {
@@ -177,7 +177,7 @@ function AgentModal({ agent, onClose }: { agent: Agent; onClose: () => void }) {
   );
 }
 
-export function ProjectInfo({ byAgent }: ProjectInfoProps) {
+export function ProjectInfo(_props: ProjectInfoProps) {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   return (
@@ -207,11 +207,6 @@ export function ProjectInfo({ byAgent }: ProjectInfoProps) {
                 </div>
                 <div className="text-sm text-gray-400">{agent.shortDesc}</div>
               </div>
-              {byAgent[agent.key] !== undefined && byAgent[agent.key] > 0 && (
-                <div className="text-2xl font-bold text-white/80">
-                  {byAgent[agent.key]}
-                </div>
-              )}
             </div>
           ))}
         </div>

@@ -219,10 +219,14 @@ export abstract class AgentBase {
   ): Promise<void> {
     // 타겟 정보 추출
     const payload = context.eventPayload;
-    const issue = payload.issue as { number?: number; title?: string } | undefined;
-    const pr = payload.pull_request as { number?: number; title?: string } | undefined;
-    const targetNumber = issue?.number || pr?.number;
-    const targetTitle = issue?.title || pr?.title;
+    // issueHandler/prHandler에서 직접 설정한 값 또는 원본 payload에서 추출
+    const targetNumber = (payload.issueNumber as number) ||
+                         (payload.prNumber as number) ||
+                         (payload.issue as { number?: number })?.number ||
+                         (payload.pull_request as { number?: number })?.number;
+    const targetTitle = (payload.title as string) ||
+                        (payload.issue as { title?: string })?.title ||
+                        (payload.pull_request as { title?: string })?.title;
 
     // 수행한 액션 목록
     const actionsTaken = actions.map((a) => {
