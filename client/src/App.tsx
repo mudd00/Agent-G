@@ -226,7 +226,7 @@ function App() {
       try {
         const [statsRes, logsRes] = await Promise.all([
           fetch('/api/stats'),
-          fetch('/api/logs?limit=6'),
+          fetch('/api/logs?limit=30'),
         ]);
 
         if (statsRes.ok) {
