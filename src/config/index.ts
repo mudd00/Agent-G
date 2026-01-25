@@ -25,6 +25,11 @@ const envSchema = z.object({
 });
 
 const parseEnv = () => {
+  // GITHUB_PRIVATE_KEY의 \n 문자열을 실제 줄바꿈으로 변환
+  if (process.env.GITHUB_PRIVATE_KEY) {
+    process.env.GITHUB_PRIVATE_KEY = process.env.GITHUB_PRIVATE_KEY.replace(/\\n/g, '\n');
+  }
+
   const result = envSchema.safeParse(process.env);
 
   if (!result.success) {
