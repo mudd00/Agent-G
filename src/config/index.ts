@@ -28,7 +28,11 @@ const parseEnv = () => {
   // 환경 변수 처리 (Railway 등에서 줄바꿈 문제 해결)
   const processedEnv = Object.fromEntries(
     Object.entries(process.env).map(([key, value]) => {
-      let processedValue = value?.trim();
+      let processedValue: string | undefined = value?.trim();
+      // 빈 문자열은 undefined로 변환 (Zod default 적용을 위해)
+      if (processedValue === '') {
+        processedValue = undefined;
+      }
       // GITHUB_PRIVATE_KEY의 경우 \n을 실제 줄바꿈으로 변환
       if (key === 'GITHUB_PRIVATE_KEY' && processedValue) {
         processedValue = processedValue.replace(/\\n/g, '\n');
