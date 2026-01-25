@@ -80,6 +80,9 @@ export async function handlePushEvent(
 
   const octokit = await createOctokitForInstallation(installation.id);
 
+  // 첫 번째 커밋 메시지를 title로 사용
+  const firstCommitMessage = commits[0]?.message?.split('\n')[0] || `Push to ${branch}`;
+
   const context: AgentContext = {
     owner: repository.owner.login,
     repo: repository.name,
@@ -88,6 +91,7 @@ export async function handlePushEvent(
     eventAction: 'push',
     eventPayload: {
       branch,
+      title: firstCommitMessage,
       commits: commits.map(c => ({
         id: c.id,
         message: c.message,

@@ -78,7 +78,7 @@ export function RecentActivity({ logs, loading }: RecentActivityProps) {
           <div className="text-gray-500 text-sm mt-2">Issue나 PR을 생성하면 여기에 표시됩니다</div>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[580px] overflow-y-auto scrollbar-hide">
           {logs.map(log => {
             const config = agentConfig[log.agent_name] || { emoji: '🤖', color: 'text-gray-400', bg: 'bg-gray-500/20' };
             return (

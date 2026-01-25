@@ -25,12 +25,18 @@ const envSchema = z.object({
 });
 
 const parseEnv = () => {
-  // GITHUB_PRIVATE_KEY의 \n 문자열을 실제 줄바꿈으로 변환
-  if (process.env.GITHUB_PRIVATE_KEY) {
-    process.env.GITHUB_PRIVATE_KEY = process.env.GITHUB_PRIVATE_KEY.replace(/\\n/g, '\n');
-  }
-
-  const result = envSchema.safeParse(process.env);
+  // 환경 변수 처리 (Railway 등에서 줄바꿈 문제 해결)
+  const processedEnv = Object.fromEntries(
+    Object.entries(process.env).map(([key, value]) => {
+      let processedValue = value?.trim();
+      // GITHUB_PRIVATE_KEY의 경우 \n을 실제 줄바꿈으로 변환
+      if (key === 'GITHUB_PRIVATE_KEY' && processedValue) {
+        processedValue = processedValue.replace(/\\n/g, '\n');
+      }
+      return [key, processedValue];
+    })
+  );
+  const result = envSchema.safeParse(processedEnv);
 
   if (!result.success) {
     console.error('[Config] Environment validation failed:');
