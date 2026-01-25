@@ -95,5 +95,3 @@ export const logger = {
     console.error('[ERROR]', ...args);
   },
 };
-
-//README auto-generation test
